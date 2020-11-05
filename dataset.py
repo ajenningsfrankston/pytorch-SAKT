@@ -23,8 +23,8 @@ class Data(Dataset):
         self.max_skill_num = 0
         begin_index = 1e9
         with open(fileName, "r") as csvfile:
-            for num_questions, ques, ans in itertools.zip_longest(*[csvfile] * 3):
-                num_questions = int(num_questions.strip().strip(','))
+            for num_ques, ques, ans in itertools.zip_longest(*[csvfile] * 3):
+                num_ques = int(num_ques.strip().strip(','))
                 ques = [int(q) for q in ques.strip().strip(',').split(',')]
                 ans = [int(a) for a in ans.strip().strip(',').split(',')]
                 tmp_max_skill = max(ques)
@@ -32,28 +32,28 @@ class Data(Dataset):
                 begin_index = min(tmp_min_skill, begin_index)
                 self.max_skill_num = max(tmp_max_skill, self.max_skill_num)
 
-                if num_questions <= 2:
+                if num_ques <= 2:
                     continue
-                elif num_questions <= opt.max_len:
+                elif num_ques <= opt.max_len:
                     problems = np.zeros(opt.max_len, dtype=np.int64)
                     correct = np.ones(opt.max_len, dtype=np.int64)
-                    problems[-num_questions:] = ques[-num_questions:]
-                    correct[-num_questions:] = ans[-num_questions:]
-                    self.students.append((num_questions, problems, correct))
+                    problems[-num_ques:] = ques[-num_ques:]
+                    correct[-num_ques:] = ans[-num_ques:]
+                    self.students.append((num_ques, problems, correct))
                 else:
                     start_idx = 0
-                    while opt.max_len + start_idx <= num_questions:
+                    while opt.max_len + start_idx <= num_ques:
                         problems = np.array(ques[start_idx:opt.max_len + start_idx])
                         correct = np.array(ans[start_idx:opt.max_len + start_idx])
                         tup = (opt.max_len, problems, correct)
                         start_idx += opt.max_len
                         self.students.append(tup)
-                    left_num_questions = num_questions - start_idx
+                    left_num_ques = num_ques - start_idx
                     problems = np.zeros(opt.max_len, dtype=np.int64)
                     correct = np.ones(opt.max_len, dtype=np.int64)
-                    problems[-left_num_questions:] = ques[start_idx:]
-                    correct[-left_num_questions:] = ans[start_idx:]
-                    tup = (left_num_questions, problems, correct)
+                    problems[-left_num_ques:] = ques[start_idx:]
+                    correct[-left_num_ques:] = ans[start_idx:]
+                    tup = (left_num_ques, problems, correct)
                     self.students.append(tup)
 
     def __getitem__(self, index):
